@@ -48,7 +48,12 @@ Hay una prueba con un LLM falso guionado que intenta autoconfirmar `sol-004` y v
 
 - **Proveedor y modelo:** Anthropic, `claude-sonnet-5-5` (configurable por `LLM_MODEL`). Es confiable en uso de herramientas en varios pasos, sigue bien instrucciones de formato en español y soporta *prompt caching*: el system prompt (comportamiento + conocimiento) se marca como cacheable y abarata los turnos siguientes de la sesión.
 - **Cambio de proveedor:** `src/llm/openai.ts` implementa la misma interfaz (también sirve para Azure OpenAI o un modelo local compatible vía `OPENAI_BASE_URL`). Cambiar es `LLM_PROVIDER=openai`; el ciclo no se toca.
-- **Costo estimado por caso:** un caso típico usa 4–6 llamadas al modelo, con unos 25–35 mil tokens de entrada acumulados (el historial crece con cada resultado de herramienta) y 1–2 mil de salida. Con precios de referencia de Sonnet 5.5 (≈ USD 2 por millón de entrada, 10 por millón de salida, lectura de caché ≈ 0,20), eso da **≈ USD 0,05–0,08 por caso sin caché y ≈ USD 0,03–0,05 con caché**. Precio a validar contra la tabla oficial de Anthropic al momento del despliegue. Para volumen alto, el flujo es lo bastante determinista como para evaluar un modelo más pequeño (Haiku) con las mismas pruebas.
+- **Costo por caso (medido, no estimado):** en las pruebas locales con `claude-sonnet-5-5` se procesaron cuatro casos completos (sol-003, sol-004, sol-005, sol-006), con 7 turnos en total incluidas las confirmaciones. La consola de Anthropic registró **USD 0,47**, es decir **≈ USD 0,12 por caso** (≈ COP 500). Un caso usa 4–6 llamadas al modelo y el historial crece con cada resultado de herramienta, por eso pesa más la entrada que la salida.
+  - **Referencia del negocio:** frente a varios minutos de digitación manual por OC, el costo es marginal.
+  - **Para bajarlo:**
+    - Confirmar que el *prompt caching* esté reutilizando el system prompt.
+    - Resumir los resultados de herramientas que se reenvían al modelo.
+    - Evaluar Haiku 5.5, que es más rápido y barato. Como las decisiones de control las toman las herramientas y no el modelo, el cambio de modelo afecta la redacción, no los controles. Las mismas pruebas validan el cambio.
 
 ## 5. Matriz de controles
 
