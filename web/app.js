@@ -26,8 +26,9 @@ function herramienta(t) {
   d.className = "herr"
   const s = document.createElement("summary")
   const marca = document.createElement("span")
-  marca.className = t.compuerta ? "gate" : t.ok ? "ok" : "ko"
-  marca.textContent = t.compuerta ? "⏸ compuerta" : t.ok ? "✔" : "✘"
+  const espera = !t.ok && String(t.resumen).startsWith("[pendiente_confirmacion]")
+  marca.className = t.compuerta || espera ? "gate" : t.ok ? "ok" : "ko"
+  marca.textContent = t.compuerta ? "⏸ compuerta" : espera ? "⏸ espera confirmación" : t.ok ? "✔" : "✘"
   const n = document.createElement("span"); n.className = "n"; n.textContent = `🔧 ${t.nombre}`
   const r = document.createElement("span"); r.className = "r"; r.textContent = t.resumen
   s.append(marca, n, r)
